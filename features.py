@@ -9,6 +9,7 @@ import transformations
 
 ## Helper functions ############################################################
 
+
 def inbounds(shape, indices):
     '''
         Input:
@@ -83,11 +84,11 @@ class HarrisKeypointDetector(KeypointDetector):
         '''
         height, width = srcImage.shape[:2]
 
-        harrisImage = np.zeros(srcImage.shape[:2]) 
+        harrisImage = np.zeros(srcImage.shape[:2])
         orientationImage = np.zeros(srcImage.shape[:2])
 
         # TODO 1: Compute the harris corner strength for 'srcImage' at
-        # each pixel and store in 'harrisImage'. Also compute an 
+        # each pixel and store in 'harrisImage'. Also compute an
         # orientation for each pixel and store it in 'orientationImage.'
         # TODO-BLOCK-BEGIN
         dx = scipy.ndimage.sobel(srcImage, 0)
@@ -95,21 +96,21 @@ class HarrisKeypointDetector(KeypointDetector):
         dx2 = np.multiply(dx, dx)
         dy2 = np.multiply(dy, dy)
         dxdy = np.multiply(dx, dy)
-        wdx2 = scipy.ndimage.gaussian_filter(dx2, sigma = 0.5)
-        wdy2 = scipy.ndimage.gaussian_filter(dy2, sigma = 0.5)
-        wdxdy = scipy.ndimage.gaussian_filter(dxdy, sigma = 0.5)
-        for row in range(srcImage.shape[0]):
-            for col in range(srcImage.shape[1]):
-                H = np.zeros((2,2))
-                H[0,0] = wdx2[row, col]
-                H[0,1] = wdxdy[row, col]
-                H[1,0] = wdxdy[row, col]
-                H[1,1] = wdy2[row, col]
+        wdx2 = scipy.ndimage.gaussian_filter(dx2, sigma=0.5)
+        wdy2 = scipy.ndimage.gaussian_filter(dy2, sigma=0.5)
+        wdxdy = scipy.ndimage.gaussian_filter(dxdy, sigma=0.5)
+        for row in range(height):
+            for col in range(width):
+                H = np.zeros((2, 2))
+                H[0, 0] = wdx2[row, col]
+                H[0, 1] = wdxdy[row, col]
+                H[1, 0] = wdxdy[row, col]
+                H[1, 1] = wdy2[row, col]
                 det = np.linalg.det(H)
                 trace = np.trace(H)
                 harrisImage[row, col] = det - 0.1*(trace)**2
-                orientationImage[row, col] = np.degrees(np.arctan2(dx[row, col], dy[row, col]))
-
+                orientationImage[row, col] = np.degrees(
+                    np.arctan2(dx[row, col], dy[row, col]))
 
         # TODO-BLOCK-END
 
@@ -130,7 +131,10 @@ class HarrisKeypointDetector(KeypointDetector):
 
         # TODO 2: Compute the local maxima image
         # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
+        max = scipy.ndimage.filters.maximum_filter(harrisImage, size=(7, 7))
+        for row in range(max.shape[0]):
+            for col in range(max.shape[1]):
+                destImage[row, col] = harrisImage[row, col] >= max[row, col]
         # TODO-BLOCK-END
 
         return destImage
@@ -258,9 +262,9 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             transMx = np.zeros((2, 3))
 
             # TODO 5: Compute the transform as described by the feature
-            # location/orientation and store in 'transMx.' You will need 
-            # to compute the transform from each pixel in the 40x40 rotated 
-            # window surrounding the feature to the appropriate pixels in 
+            # location/orientation and store in 'transMx.' You will need
+            # to compute the transform from each pixel in the 40x40 rotated
+            # window surrounding the feature to the appropriate pixels in
             # the 8x8 feature descriptor image. 'transformations.py' has
             # helper functions that might be useful
             # Note: use grayImage to compute features on, not the input image
@@ -271,10 +275,10 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # Call the warp affine function to do the mapping
             # It expects a 2x3 matrix
             destImage = cv2.warpAffine(grayImage, transMx,
-                (windowSize, windowSize), flags=cv2.INTER_LINEAR)
+                                       (windowSize, windowSize), flags=cv2.INTER_LINEAR)
 
-            # TODO 6: Normalize the descriptor to have zero mean and unit 
-            # variance. If the variance is negligibly small (which we 
+            # TODO 6: Normalize the descriptor to have zero mean and unit
+            # variance. If the variance is negligibly small (which we
             # define as less than 1e-10) then set the descriptor
             # vector to zero. Lastly, write the vector to desc.
             # TODO-BLOCK-BEGIN
@@ -334,7 +338,7 @@ class FeatureMatcher(object):
         d = h[6]*x + h[7]*y + h[8]
 
         return np.array([(h[0]*x + h[1]*y + h[2]) / d,
-            (h[3]*x + h[4]*y + h[5]) / d])
+                         (h[3]*x + h[4]*y + h[5]) / d])
 
 
 class SSDFeatureMatcher(FeatureMatcher):
@@ -402,7 +406,7 @@ class RatioFeatureMatcher(FeatureMatcher):
         # TODO 8: Perform ratio feature matching.
         # This uses the ratio of the SSD distance of the two best matches
         # and matches a feature in the first image with the closest feature in the
-        # second image. If the SSD distance is negligibly small, in this case less 
+        # second image. If the SSD distance is negligibly small, in this case less
         # than 1e-5, then set the distance to 1. If there are less than two features,
         # set the distance to 0.
         # Note: multiple features from the first image may match the same
