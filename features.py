@@ -83,14 +83,34 @@ class HarrisKeypointDetector(KeypointDetector):
         '''
         height, width = srcImage.shape[:2]
 
-        harrisImage = np.zeros(srcImage.shape[:2])
+        harrisImage = np.zeros(srcImage.shape[:2]) 
         orientationImage = np.zeros(srcImage.shape[:2])
 
         # TODO 1: Compute the harris corner strength for 'srcImage' at
         # each pixel and store in 'harrisImage'. Also compute an 
         # orientation for each pixel and store it in 'orientationImage.'
         # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
+        dx = scipy.ndimage.sobel(srcImage, 0)
+        dy = scipy.ndimage.sobel(srcImage, 1)
+        dx2 = np.multiply(dx, dx)
+        dy2 = np.multiply(dy, dy)
+        dxdy = np.multiply(dx, dy)
+        wdx2 = scipy.ndimage.gaussian_filter(dx2, sigma = 0.5)
+        wdy2 = scipy.ndimage.gaussian_filter(dy2, sigma = 0.5)
+        wdxdy = scipy.ndimage.gaussian_filter(dxdy, sigma = 0.5)
+        for row in range(srcImage.shape[0]):
+            for col in range(srcImage.shape[1]):
+                H = np.zeros((2,2))
+                H[0,0] = wdx2[row, col]
+                H[0,1] = wdxdy[row, col]
+                H[1,0] = wdxdy[row, col]
+                H[1,1] = wdy2[row, col]
+                det = np.linalg.det(H)
+                trace = np.trace(H)
+                harrisImage[row, col] = det - 0.1*(trace)**2
+                orientationImage[row, col] = np.degrees(np.arctan2(dx[row, col], dy[row, col]))
+
+
         # TODO-BLOCK-END
 
         return harrisImage, orientationImage
