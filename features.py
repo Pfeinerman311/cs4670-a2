@@ -278,20 +278,18 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # helper functions that might be useful
             # Note: use grayImage to compute features on, not the input image
             # TODO-BLOCK-BEGIN
-            tVec = np.zeros((1, 3))
-            tVec[0] = 0 - f.pt[0]
-            tVec[0,1] = 0 - f.pt[1]
+            tVec = np.array([0-f.pt[0], 0-f.pt[1], 0])
             translation = transformations.get_trans_mx(tVec)
 
             rotation = transformations.get_rot_mx(0, 0, f.angle)
             scale = transformations.get_scale_mx(0.2, 0.2, 1)
 
-            tVec2 = np.zeros((1, 3))
-            tVec2[0] = 4
-            tVec2[0,1] = 4
+            tVec2 = np.array([4, 4, 0])
             translation2 = transformations.get_trans_mx(tVec2)
 
-            fullMx = np.multiply(translation2, scale, rotation, translation)
+            #fullMx = np.multiply(translation2, scale, rotation, translation)
+            fullMx = np.multiply(np.multiply(np.multiply(
+                translation2, scale), rotation), translation)
             transMx = fullMx[:2, :3]
             # TODO-BLOCK-END
 
@@ -305,7 +303,16 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # define as less than 1e-10) then set the descriptor
             # vector to zero. Lastly, write the vector to desc.
             # TODO-BLOCK-BEGIN
-            raise Exception("TODO in features.py not implemented")
+            mean = np.mean(destImage)
+            std = np.std(destImage)
+            if std**2 < .0000000001:
+                temp = np.zeros(destImage.shape[:2])
+            else:
+                temp = np.divide(np.subtract(destImage, mean), std)
+            count = 0
+            for x in range(destImage.shape[0]):
+                for y in range(destImage.shape[1]):
+                    desc[i, count] = temp[y, x]
             # TODO-BLOCK-END
 
         return desc
