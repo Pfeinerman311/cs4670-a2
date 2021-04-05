@@ -91,14 +91,14 @@ class HarrisKeypointDetector(KeypointDetector):
         # each pixel and store in 'harrisImage'. Also compute an
         # orientation for each pixel and store it in 'orientationImage.'
         # TODO-BLOCK-BEGIN
-        dx = scipy.ndimage.sobel(srcImage, 0, mode='constant')
-        dy = scipy.ndimage.sobel(srcImage, 1, mode='constant')
+        dx = scipy.ndimage.sobel(srcImage, 0, mode='nearest')
+        dy = scipy.ndimage.sobel(srcImage, 1, mode='nearest')
         dx2 = np.multiply(dx, dx)
         dy2 = np.multiply(dy, dy)
         dxdy = np.multiply(dx, dy)
-        wdx2 = scipy.ndimage.gaussian_filter(dx2, sigma=0.5, mode='constant')
-        wdy2 = scipy.ndimage.gaussian_filter(dy2, sigma=0.5, mode='constant')
-        wdxdy = scipy.ndimage.gaussian_filter(dxdy, sigma=0.5, mode='constant')
+        wdx2 = scipy.ndimage.gaussian_filter(dx2, sigma=0.5, mode='nearest')
+        wdy2 = scipy.ndimage.gaussian_filter(dy2, sigma=0.5, mode='nearest')
+        wdxdy = scipy.ndimage.gaussian_filter(dxdy, sigma=0.5, mode='nearest')
         for row in range(height):
             for col in range(width):
                 H = np.zeros((2, 2))
@@ -132,7 +132,7 @@ class HarrisKeypointDetector(KeypointDetector):
         # TODO 2: Compute the local maxima image
         # TODO-BLOCK-BEGIN
         max = scipy.ndimage.filters.maximum_filter(
-            harrisImage, size=(7, 7), mode='constant')
+            harrisImage, size=(7, 7), mode='nearest')
         for row in range(max.shape[0]):
             for col in range(max.shape[1]):
                 destImage[row, col] = harrisImage[row, col] >= max[row, col]
