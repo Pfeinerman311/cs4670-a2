@@ -278,20 +278,26 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # helper functions that might be useful
             # Note: use grayImage to compute features on, not the input image
             # TODO-BLOCK-BEGIN
-            tVec = np.array([0-f.pt[0], 0-f.pt[1], 0])
-            translation = transformations.get_trans_mx(tVec)
+            tVec = np.array([-f.pt[0], -f.pt[1], 0])
+            T1 = transformations.get_trans_mx(tVec)
 
-            rotation = transformations.get_rot_mx(0, 0, f.angle)
-            scale = transformations.get_scale_mx(0.2, 0.2, 1)
+            R = transformations.get_rot_mx(0, 0, f.angle)
+
+            S = transformations.get_scale_mx(0.2, 0.2, 1)
 
             tVec2 = np.array([4, 4, 0])
-            translation2 = transformations.get_trans_mx(tVec2)
+            T2 = transformations.get_trans_mx(tVec2)
 
-            #fullMx = np.multiply(translation2, scale, rotation, translation)
-            fullMx = np.multiply(np.multiply(np.multiply(
-                translation2, scale), rotation), translation)
-            assert fullMx.shape[0] == 4
-            transMx = fullMx[:2, :3]
+            M43 = np.zeros((4, 3))
+            M43[0, 0] = 1
+            M43[1, 1] = 1
+            M43[3, 2] = 1
+
+            M24 = np.zeros((2, 4))
+            M24[0, 0] = 1
+            M24[1, 1] = 1
+
+            transMx = M24@T2@S@R@T1@M43
             # TODO-BLOCK-END
 
             # Call the warp affine function to do the mapping
@@ -304,12 +310,15 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # define as less than 1e-10) then set the descriptor
             # vector to zero. Lastly, write the vector to desc.
             # TODO-BLOCK-BEGIN
+            # print(destImage)
             mean = np.mean(destImage)
             std = np.std(destImage)
             if np.var(destImage) < .0000000001:
-                temp = np.zeros(destImage.shape[:2])
+                temp = np.zeros(destImage.shape)
             else:
+                # print(mean)
                 temp = np.divide(np.subtract(destImage, mean), std)
+                #assert (np.mean(temp) == 0) and (np.var(temp) == 0)
             count = 0
             for x in range(destImage.shape[0]):
                 for y in range(destImage.shape[1]):
