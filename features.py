@@ -281,7 +281,7 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             tVec = np.array([-f.pt[0], -f.pt[1], 0])
             T1 = transformations.get_trans_mx(tVec)
 
-            R = transformations.get_rot_mx(0, 0, f.angle)
+            R = transformations.get_rot_mx(0, 0, np.radians(-f.angle))
 
             S = transformations.get_scale_mx(0.2, 0.2, 1)
 
@@ -313,12 +313,10 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # print(destImage)
             mean = np.mean(destImage)
             std = np.std(destImage)
-            if np.var(destImage) < .0000000001:
+            if np.var(destImage) < 1e-10:
                 temp = np.zeros(destImage.shape)
             else:
-                # print(mean)
-                temp = np.divide(np.subtract(destImage, mean), std)
-                #assert (np.mean(temp) == 0) and (np.var(temp) == 0)
+                temp = (destImage - mean) / std
             count = 0
             for x in range(destImage.shape[0]):
                 for y in range(destImage.shape[1]):

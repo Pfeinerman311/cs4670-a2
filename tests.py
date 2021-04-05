@@ -74,14 +74,10 @@ def try_this(todo, run, truth, compare, *args, **kargs):
     if type(output) is list or type(output) is tuple:
         for i in range(len(output)):
             if not compare(output[i], truth[i], **kargs):
-                print(output[i])
-                print(truth[i])
                 print("TODO {} doesn't pass test: {}".format(todo, i))
                 failed += 1
     else:
         if not compare(output, truth, **kargs):
-            print(output[20050:])
-            print(truth[20050:])
             print("TODO {} doesn't pass test".format(todo))
             failed += 1
     return failed
