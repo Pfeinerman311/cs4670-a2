@@ -236,7 +236,12 @@ class SimpleFeatureDescriptor(FeatureDescriptor):
             # as a row-major vector. Treat pixels outside the image as zero.
             # Note: use grayImage to compute features on, not the input image
             # TODO-BLOCK-BEGIN
-            raise Exception("TODO in features.py not implemented")
+            padded = np.pad(grayImage, (5, 5), 'constant', constant_values=0)
+            count = 0
+            for row in range(-2, 3):
+                for col in range(-2, 3):
+                    desc[i, count] = padded[y+5+row, x+5+col]
+                    count += 1
             # TODO-BLOCK-END
 
         return desc
