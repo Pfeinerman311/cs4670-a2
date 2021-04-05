@@ -278,7 +278,21 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # helper functions that might be useful
             # Note: use grayImage to compute features on, not the input image
             # TODO-BLOCK-BEGIN
-            raise Exception("TODO in features.py not implemented")
+            tVec = np.zeros((1, 3))
+            tVec[0] = 0 - f.pt[0]
+            tVec[0,1] = 0 - f.pt[1]
+            translation = transformations.get_trans_mx(tVec)
+
+            rotation = transformations.get_rot_mx(0, 0, f.angle)
+            scale = transformations.get_scale_mx(0.2, 0.2, 1)
+
+            tVec2 = np.zeros((1, 3))
+            tVec2[0] = 4
+            tVec2[0,1] = 4
+            translation2 = transformations.get_trans_mx(tVec2)
+
+            fullMx = np.multiply(translation2, scale, rotation, translation)
+            transMx = fullMx[:2, :3]
             # TODO-BLOCK-END
 
             # Call the warp affine function to do the mapping
