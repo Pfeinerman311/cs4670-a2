@@ -290,6 +290,7 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             #fullMx = np.multiply(translation2, scale, rotation, translation)
             fullMx = np.multiply(np.multiply(np.multiply(
                 translation2, scale), rotation), translation)
+            assert fullMx.shape[0] == 4
             transMx = fullMx[:2, :3]
             # TODO-BLOCK-END
 
@@ -305,14 +306,15 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # TODO-BLOCK-BEGIN
             mean = np.mean(destImage)
             std = np.std(destImage)
-            if std**2 < .0000000001:
+            if np.var(destImage) < .0000000001:
                 temp = np.zeros(destImage.shape[:2])
             else:
                 temp = np.divide(np.subtract(destImage, mean), std)
             count = 0
             for x in range(destImage.shape[0]):
                 for y in range(destImage.shape[1]):
-                    desc[i, count] = temp[y, x]
+                    desc[i, count] = temp[x, y]
+                    count += 1
             # TODO-BLOCK-END
 
         return desc
