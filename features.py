@@ -411,7 +411,7 @@ class SSDFeatureMatcher(FeatureMatcher):
         # Note: multiple features from the first image may match the same
         # feature in the second image.
         # TODO-BLOCK-BEGIN
-        dist = scipy.spatial.distance.cdist(desc1, desc2, 'euclidean')
+        dist = scipy.spatial.distance.cdist(desc1, desc2, 'sqeuclidean')
         for i in range(desc1.shape[0]):
             minVal = dist[i,0]
             minJ = 0
@@ -460,11 +460,10 @@ class RatioFeatureMatcher(FeatureMatcher):
         # Note: multiple features from the first image may match the same
         # feature in the second image.
         # TODO-BLOCK-BEGIN
-        dist = scipy.spatial.distance.cdist(desc1, desc2, 'euclidean')
-        twoF = False
+        dist = scipy.spatial.distance.cdist(desc1, desc2, 'sqeuclidean')
         for i in range(desc1.shape[0]):
-            minVal1 = dist[i,0]
-            minVal2 = dist[i, desc2.shape[0]-1]
+            minVal1 = dist[i, 0]
+            minVal2 = dist[i, 0]
             minJ = 0
             for j in range(desc2.shape[0]):
                 if dist[i,j] < minVal1:
@@ -473,7 +472,7 @@ class RatioFeatureMatcher(FeatureMatcher):
                     minJ = j
                 elif dist[i,j] < minVal2:
                     minVal2 = dist[i,j]
-            if minVal1 < 1e-5:
+            if minVal2 < 1e-5:
                 ratio = 1
             elif desc2.shape[0] < 2:
                 ratio = 0 
