@@ -460,7 +460,30 @@ class RatioFeatureMatcher(FeatureMatcher):
         # Note: multiple features from the first image may match the same
         # feature in the second image.
         # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
+        dist = scipy.spatial.distance.cdist(desc1, desc2, 'euclidean')
+        twoF = False
+        for i in range(desc1.shape[0]):
+            minVal1 = dist[i,0]
+            minVal2 = dist[i, desc2.shape[0]-1]
+            minJ = 0
+            for j in range(desc2.shape[0]):
+                if dist[i,j] < minVal1:
+                    minVal2 = minVal1
+                    minVal1 = dist[i,j]
+                    minJ = j
+                elif dist[i,j] < minVal2:
+                    minVal2 = dist[i,j]
+                    minJ = j
+
+            if minVal1 < 1e-5:
+                ratio = 1
+            elif desc2.shape[0] < 2:
+                ratio = 0 
+            else:
+                ratio = minVal1/minVal2
+            match = cv2.DMatch(i, minJ, ratio)
+            matches.append(match)
+
         # TODO-BLOCK-END
 
         return matches
