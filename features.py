@@ -473,8 +473,6 @@ class RatioFeatureMatcher(FeatureMatcher):
                     minJ = j
                 elif dist[i,j] < minVal2:
                     minVal2 = dist[i,j]
-                    minJ = j
-
             if minVal1 < 1e-5:
                 ratio = 1
             elif desc2.shape[0] < 2:
