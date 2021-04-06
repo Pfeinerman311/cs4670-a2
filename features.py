@@ -411,7 +411,16 @@ class SSDFeatureMatcher(FeatureMatcher):
         # Note: multiple features from the first image may match the same
         # feature in the second image.
         # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
+        dist = scipy.spatial.distance.cdist(desc1, desc2, 'euclidean')
+        for i in range(desc1.shape[0]):
+            minVal = 0
+            minJ = 0
+            for j in range(desc2.shape[0]):
+                if dist[i,j] < minVal:
+                    minVal = dist[i,j]
+                    minJ = j
+            match = cv2.DMatch(i, minJ, minVal)
+            matches.append(match)
         # TODO-BLOCK-END
 
         return matches
