@@ -413,7 +413,7 @@ class SSDFeatureMatcher(FeatureMatcher):
         # TODO-BLOCK-BEGIN
         dist = scipy.spatial.distance.cdist(desc1, desc2, 'euclidean')
         for i in range(desc1.shape[0]):
-            minVal = 0
+            minVal = dist[i,0]
             minJ = 0
             for j in range(desc2.shape[0]):
                 if dist[i,j] < minVal:
